@@ -18,7 +18,6 @@
           return stateSelect.selectedOptions;
       }
       function onDashboardLoad(payload){}
-      function onOKClick(){}
 
       function onError(payload) {}
 
@@ -56,9 +55,8 @@
       }
 
     let fetchNews = (elem, state) => {
-     let RSS_URL = "https://np.jmlke.name";
-     if (state !== undefined)
-         RSS_URL += "?state="+state.name.replace(/ /g, '+');
+	let RSS_URL = "https://np.jmlke.name/news";
+	RSS_URL += "?q={covid-19"+((state !== undefined)?" "+state.name.replace(/ /g, '+') :"")+"}+when:2d&hl=en-US&gl=US&ceid=US:en";
     console.log ("RSS_URL: "+RSS_URL);
     fetch(RSS_URL)
 	.then(response => 
