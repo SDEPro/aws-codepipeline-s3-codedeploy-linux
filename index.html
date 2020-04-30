@@ -28,9 +28,12 @@
           let stateSelect = document.getElementById("stateSelect");
           return stateSelect.selectedOptions;
       }
-      function onDashboardLoad(payload){}
 
-      function onError(payload) {}
+  //Error payload info is limited. See:
+  //https://github.com/awslabs/amazon-quicksight-embedding-sdk/blob/master/README.md
+  function onError(payload) {
+      console.log(payload.errorCode);
+  }
 
       let embedDashboard = () => {
           let containerDiv = document.getElementById("dashboardContainer");
@@ -38,11 +41,10 @@
 	       let proxy_URL = getMWURL("qs-embed");
 	       console.log ("proxy_URL: "+proxy_URL);
 	       fetch(proxy_URL)
-		   .then(response => 
-			 {
+		   .then(response => {
 			     console.log("cstatus: "+response.status);
 			     return response.text()
-			 })
+		   })
 		   .then(data => {
 		       console.log(data);
 		       let options = {
@@ -54,7 +56,6 @@
 		       };
 		       dashboard = QuickSightEmbedding.embedDashboard(options);
 		       dashboard.on("error", onError);
-		       dashboard.on("load", onDashboardLoad);
 		       return data;        
 		   });
 	   } else {
@@ -81,29 +82,29 @@
          {
           return response.text()})
 	.then(data => { 
-            var parser = new DOMParser();
+            const parser = new DOMParser();
             var xmlDoc = parser.parseFromString(data,"text/xml");
 	    const items = xmlDoc.querySelectorAll("item");
-	    var defaultCount = 3;
-	    var tot = (items.count < defaultCount) ? items.count : defaultCount;
-	    for (var i = 0; i < tot; i++) {
-		var el = items[i];
-                var title = el.querySelector("title").innerHTML;
-                var link = el.querySelector("link").innerHTML;
-                var lDiv = document.createElement("div");   
+	    const defaultCount = 3;
+	    const tot = (items.count < defaultCount) ? items.count : defaultCount;
+	    for (let i = 0; i < tot; i++) {
+		let el = items[i];
+                let title = el.querySelector("title").innerHTML;
+                let link = el.querySelector("link").innerHTML;
+                let lDiv = document.createElement("div");   
                 lDiv.className = "nws-lnk";
-                var aObj = document.createElement("a");
+                let aObj = document.createElement("a");
                 aObj.href = link;
                 aObj.text = title;
                 aObj.target = "_blank";
                 aObj.rel="noopener";
                 lDiv.appendChild(aObj);
                 lDiv.appendChild(document.createElement("p"));
-                var pubSpan = document.createElement("span");
+                let pubSpan = document.createElement("span");
                 pubSpan.className = "pubsrc";
                 pubSpan.innerText = el.querySelector("source").innerHTML+': ';
                 lDiv.appendChild(pubSpan);
-                var dateSpan = document.createElement("span");
+                let dateSpan = document.createElement("span");
                 dateSpan.className = "pubdate";
                 dateSpan.innerText = el.querySelector("pubDate").innerHTML;
                 lDiv.appendChild(dateSpan);
@@ -112,33 +113,33 @@
 	});
     };
 let buildNewsContainer = () => {
-    var nc = document.getElementById("newsContainer");
+    const nc = document.getElementById("newsContainer");
     nc.innerHTML = "";
-    let selectedStates = getSelectedStates();  
-    var num = selectedStates.length;
+    const selectedStates = getSelectedStates();  
+    const num = selectedStates.length;
     if (num > 0) {    
       //console.log("num: "+num);
       for (let opt of selectedStates) {
-	  var state = {abbrev: opt.value, name: opt.text};
-	  var sDiv = document.createElement("div");
-	  var spanHook = document.createElement("button");
+	  const state = {abbrev: opt.value, name: opt.text};
+	  const sDiv = document.createElement("div");
+	  const spanHook = document.createElement("button");
 	  spanHook.textContent = state.name;
 	  spanHook.className = "collapsible";
 	  sDiv.appendChild(spanHook);
 	  spanHook.setAttribute("data-state", state.abbrev);
-	  var lDiv = document.createElement("div");
+	  const lDiv = document.createElement("div");
 	  lDiv.id = state.abbrev+"div";
 	  if (num > 1) lDiv.style.display = "none"; //show if only one selected
           fetchNews(lDiv, state);
 	  sDiv.appendChild(lDiv);
 	  sDiv.onclick = function() {
-	      var d = document.getElementById(event.target.getAttribute("data-state")+"div");
+	      let d = document.getElementById(event.target.getAttribute("data-state")+"div");
 	      d.style.display = (d.style.display == "none") ? "block" : "none";
 	  }
 	  nc.appendChild(sDiv);
        }
     } else {
-       var stateDiv = document.createElement("div");
+       const stateDiv = document.createElement("div");
        nc.appendChild(stateDiv);
        fetchNews(stateDiv);
    }
@@ -146,9 +147,6 @@ let buildNewsContainer = () => {
 let refresh = () => {
     buildNewsContainer();
     embedDashboard();
-
-    //super hacky way to get rid of dashboard parameter selector goes here 
-    //style.display="none";
 }
 </script>    
 
