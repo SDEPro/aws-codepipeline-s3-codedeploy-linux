@@ -59,12 +59,18 @@
 		   });
 	   } else {
                let selectedStates = getSelectedStates();
-               let parameters = {
+
+	       if (selectedStates.length > 0) {
+	       let parameters = {
                   State: []
                };
                for(var i = 0; i < selectedStates.length; i++)
                    parameters.State.push(selectedStates[i].value);
-               dashboard.setParameters(parameters);
+		   dashboard.setParameters(parameters);
+	       } else { //clear params if we clear all states from dropdown
+		   dashboard.setParameters({});
+	       }
+	       
            }
       }
 
