@@ -74,6 +74,16 @@
            }
       }
 
+
+  //Grab XML from the RSS feed according to the desired query and
+  //build each news item container
+
+  //Resulting XML exmaple (some elements omitted):
+  // <item>
+  //    <title>Coronavirus News: Hotel industry decimated by COVID-19 pandemic, owners say it's worse than 9/11 - WABC-TV</title>
+  //    <link>https://abc7ny.com/coronavirus-nyc-update-corona-virus-cases/6137938/</link>
+  //    <pubDate>Wed, 29 Apr 2020 19:39:04 GMT</pubDate>
+  // </item>
     let fetchNews = (elem, state) => {
 	let RSS_URL = getMWURL("news?q={covid-19"+((state !== undefined)?" "+state.name.replace(/ /g, '+') :"")+"}+when:2d&hl=en-US&gl=US&ceid=US:en");
     console.log ("RSS_URL: "+RSS_URL);
@@ -112,6 +122,10 @@
             }
 	});
     };
+
+  //Add buttons and news item containers to the main news container
+  //If there is more than one state selected we hide the individual
+  //news containers (display:none) initially, then show/hide on a click
 let buildNewsContainer = () => {
     const nc = document.getElementById("newsContainer");
     nc.innerHTML = "";
@@ -120,17 +134,27 @@ let buildNewsContainer = () => {
     if (num > 0) {    
       //console.log("num: "+num);
       for (let opt of selectedStates) {
+
+	  //create button
 	  const state = {abbrev: opt.value, name: opt.text};
 	  const sDiv = document.createElement("div");
 	  const spanHook = document.createElement("button");
 	  spanHook.textContent = state.name;
 	  spanHook.className = "collapsible";
 	  sDiv.appendChild(spanHook);
+
+	  //button data-state attribute contains the id of the container
+	  //it controls
 	  spanHook.setAttribute("data-state", state.abbrev);
+
+	  //create news items container
 	  const lDiv = document.createElement("div");
 	  lDiv.id = state.abbrev+"div";
 	  if (num > 1) lDiv.style.display = "none"; //show if only one selected
-          fetchNews(lDiv, state);
+
+	  //populate it with content
+	  fetchNews(lDiv, state);
+
 	  sDiv.appendChild(lDiv);
 	  sDiv.onclick = function() {
 	      let d = document.getElementById(event.target.getAttribute("data-state")+"div");
@@ -138,7 +162,7 @@ let buildNewsContainer = () => {
 	  }
 	  nc.appendChild(sDiv);
        }
-    } else {
+    } else {  //just show general article links (not state-specific)
        const stateDiv = document.createElement("div");
        nc.appendChild(stateDiv);
        fetchNews(stateDiv);
@@ -212,4 +236,3 @@ let refresh = () => {
     <div id="newsContainer" class="col-news"></div>
   </body>
 </html>
-
