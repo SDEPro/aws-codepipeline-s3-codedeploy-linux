@@ -4,9 +4,20 @@
     <title>Embedded QS3</title>
         <link rel="stylesheet" type="text/css" href="https://sde-ebs-resources.s3.amazonaws.com/styles.css">
         <script src="https://unpkg.com/amazon-quicksight-embedding-sdk@1.0.3/dist/quicksight-embedding-js-sdk.min.js"></script>
-    <script type="text/JavaScript">
-      var dashboard = null;
 
+<script type="text/JavaScript">
+
+  //stores our embedded dashboard from QuickSight
+  var dashboard = null;
+
+  //host name for retrieving news and QS embed URL
+  const mwHost = "mw.jmlke.name";
+
+  //assumes path contains query string if desired
+  let getMWURL = (path) => {
+      return "https://"+mwHost+"/"+path;
+  }
+  
       //See https://stackoverflow.com/questions/1912501/unescape-html-entities-in-javascript/34064434#34064434
       let htmlDecode = (input) => {
           var doc = new DOMParser().parseFromString(input, "text/html");
@@ -24,39 +35,41 @@
       let embedDashboard = () => {
           let containerDiv = document.getElementById("dashboardContainer");
            if (dashboard === null) {
-    let proxy_URL = "https://np.jmlke.name/qs-embed";
-    console.log ("proxy_URL: "+proxy_URL);
-    fetch(proxy_URL)
-	.then(response => 
-         {
-          console.log("cstatus: "+response.status);
-          return response.text()})
-	.then(data => {
-          console.log(data);
-              let options = {
-		  url: data,
-                  container: containerDiv,
-                  scrolling: "no", height: "700px", width: "100%"
-              };
-              dashboard = QuickSightEmbedding.embedDashboard(options);
-              dashboard.on("error", onError);
-              dashboard.on("load", onDashboardLoad);
-          return data;        
-        });
+	       let proxy_URL = getMWURL("qs-embed");
+	       console.log ("proxy_URL: "+proxy_URL);
+	       fetch(proxy_URL)
+		   .then(response => 
+			 {
+			     console.log("cstatus: "+response.status);
+			     return response.text()
+			 })
+		   .then(data => {
+		       console.log(data);
+		       let options = {
+			   url: data,
+			   container: containerDiv,
+			   scrolling: "no",
+			   height: "700px",
+			   width: "100%"
+		       };
+		       dashboard = QuickSightEmbedding.embedDashboard(options);
+		       dashboard.on("error", onError);
+		       dashboard.on("load", onDashboardLoad);
+		       return data;        
+		   });
 	   } else {
-              let selectedStates = getSelectedStates();
-              let parameters = {
+               let selectedStates = getSelectedStates();
+               let parameters = {
                   State: []
-              };
-              for(var i = 0; i < selectedStates.length; i++)
-                      parameters.State.push(selectedStates[i].label);
-              dashboard.setParameters(parameters);
-            }
+               };
+               for(var i = 0; i < selectedStates.length; i++)
+                   parameters.State.push(selectedStates[i].label);
+               dashboard.setParameters(parameters);
+           }
       }
 
     let fetchNews = (elem, state) => {
-	let RSS_URL = "https://np.jmlke.name/news";
-	RSS_URL += "?q={covid-19"+((state !== undefined)?" "+state.name.replace(/ /g, '+') :"")+"}+when:2d&hl=en-US&gl=US&ceid=US:en";
+	let RSS_URL = getMWURL("news?q={covid-19"+((state !== undefined)?" "+state.name.replace(/ /g, '+') :"")+"}+when:2d&hl=en-US&gl=US&ceid=US:en");
     console.log ("RSS_URL: "+RSS_URL);
     fetch(RSS_URL)
 	.then(response => 
