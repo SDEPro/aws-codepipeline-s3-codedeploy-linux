@@ -60,17 +60,16 @@
 	   } else {
                let selectedStates = getSelectedStates();
 
-	       if (selectedStates.length > 0) {
 	       let parameters = {
                   State: []
                };
-               for(var i = 0; i < selectedStates.length; i++)
-                   parameters.State.push(selectedStates[i].value);
-		   dashboard.setParameters(parameters);
-	       } else { //clear params if we clear all states from dropdown
-		   dashboard.setParameters({});
-	       }
-	       
+	       if (selectedStates.length > 0)
+		   for(var i = 0; i < selectedStates.length; i++)
+		       parameters.State.push(selectedStates[i].value);
+	       else
+		   parameters.State.push("ALL");
+
+	       dashboard.setParameters(parameters);
            }
       }
 
